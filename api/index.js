@@ -106,14 +106,28 @@ app.post('/post', upload.single('file'), async (req, res) => {
   
   const {title, summary, content} = req.body;
 
-  const postDoc = await PostModel.create({
+  const {token} = req.cookies;
+  jwt.verify(token, secretKey, {}, async (err, info) => {
+    if (err) throw err;
+    const postDoc = await PostModel.create({
     title,
     summary,
     content,
-    cover: newPath
+    cover: newPath,
+    author: info.id
 
   });
-  res.json(postDoc)
+    res.json(postDoc);
+   
+  })
+
+  
+})
+
+
+app.get('/post', async (req, res) => {
+  const posts = await PostModel.find().populate('author', ['username']);
+  res.json(posts);
 })
 
 
