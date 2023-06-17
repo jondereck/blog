@@ -21,6 +21,9 @@ app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(express.json());
 app.use(cookieParser());
 
+// endpoint for picture location
+app.use('/uploads', express.static(__dirname + '/uploads'));
+
 mongoose.connect('mongodb+srv://blog:St2vVqAbscrvxX2a@cluster1.jmqle3f.mongodb.net/?retryWrites=true&w=majority')
 
 // Define routes
@@ -126,7 +129,11 @@ app.post('/post', upload.single('file'), async (req, res) => {
 
 
 app.get('/post', async (req, res) => {
-  const posts = await PostModel.find().populate('author', ['username']);
+  const posts = await PostModel.find()
+    .populate('author', ['username'])
+    .sort({createdAt: -1})
+    .limit(20)
+    
   res.json(posts);
 })
 
